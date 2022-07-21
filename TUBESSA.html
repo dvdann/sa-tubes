@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brute Force Word Search Puzzle</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <br>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <table class="table table-responsive" id="board">
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <div> Kata yang dicari : </div>
+                <table class="table table-responsive" id="soal">
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <div> Hasil Backtracking : </div>
+                <table class="table table-responsive" id="hasilbt">
+                    <tbody>
+
+                    </tbody>
+                </table>
+                <div> Hasil Brute Force : </div>
+                <table class="table table-responsive" id="hasilbf">
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-2">
+                <button id="solve" class="btn btn-primary btn-block">Solving Puzzle</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        const warna = '#00FF00';
+        const soal = ['EARTH', 'JUPITER', 'MARS', 'MERCURY'];
+        const matrix = [
+            [],
+            ['J', 'S', 'O', 'L', 'U', 'T', 'I', 'S'],
+            ['S', 'U', 'N', 'A', 'R', 'U', 'U', 'A'],
+            ['N', 'E', 'P', 'T', 'U', 'N', 'E', 'T'],
+            ['S', 'O', 'N', 'I', 'E', 'I', 'S', 'U'],
+            ['R', 'C', 'E', 'V', 'T', 'R', 'E', 'R'],
+            ['A', 'H', 'T', 'R', 'A', 'E', 'S', 'N'],
+            ['M', 'M', 'E', 'R', 'C', 'U', 'R', 'Y'],
+        ];
+        var solusi = [];
+        var solusi2 = [];
+        var visited = [];
+        let path = 1;
+        let path2 = 1;
+        const boardbody = $('#board tbody');
+        const soalbody = $('#soal tbody');
+
+        function wordMatrix(N) {
+            // creating two dimensional array
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    solusi[i] = [];
+                }
+            }
+
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    solusi[i][j] = 0;
+                }
+            }
+        }
+
+        function wordMatrixBrute(N) {
+            // creating two dimensional array
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    solusi2[i] = [];
+                }
+            }
+
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    solusi2[i][j] = 0;
+                }
+            }
+        }
+
+        // function drawSoal(soal) {
+        //     // for (let i = 0; i < soal.length; i++) {
+
+        //     // soalbody.append(`<tr><td id=soal data-soal=${soal[i]}><input class="soal" name="soal" type="radio" value="${soal[i]}"> ${soal[i]}</td></tr>`)
+        //     // }
+        //     soalbody.append(`<tr><td id=soal>${soal}</td></tr>`)
+
+        // }
+
+        // menggambar map
+        function drawWordMap() {
+            boardbody.html("");
+            for (let row = 0; row < matrix.length; row++) {
+                boardbody.append(`<tr id=r${row + 1}></tr>`);
+                for (let col = 0; col < matrix[row].length; col++) {
+                    $("table#board tr#r" + row).append(`<td id=c${(col + 1)} rel=\"E\">${matrix[row][col]}</td>`);
+                }
+            }
+        }
+
+        function searchWord(matrix, soal) {
+            let N = matrix.length;
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    if (solveBacktracking(matrix, soal, i, j, 0, N)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function searchWordBrute(matrix, soal) {
+            let N = matrix.length;
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    if (solveBruteForce(matrix, soal, i, j, 0, N)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function solveBacktracking(matrix, soal, row, col, index, N) {
+
+            if (solusi[row][col] !== 0 || soal.charAt(index) !== matrix[row][col]) {
+                return false;
+            }
+
+            if (index === soal.length - 1) {
+                matrix[row][col] = path++;
+                $(`table#board tr#r${row} td#c${col + 1}`).css('background-color', warna).attr("rel", "X");
+                return true;
+            }
+
+            solusi[row][col] = path++;
+
+            if (row + 1 < N && solveBacktracking(matrix, soal, row + 1, col, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('background-color', warna).attr("rel", "X");
+                return true;
+            }
+
+            if (row - 1 >= 0 && solveBacktracking(matrix, soal, row - 1, col, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('background-color', warna).attr("rel", "X");
+                return true;
+            }
+
+            if (col + 1 < N && solveBacktracking(matrix, soal, row, col + 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('background-color', warna).attr("rel", "X");
+                return true;
+            }
+
+            if (col - 1 >= 0 && solveBacktracking(matrix, soal, row, col - 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('background-color', warna).attr("rel", "X");
+                return true;
+            }
+
+            if (row - 1 >= 0 && col + 1 < N && solveBacktracking(matrix, soal, row - 1, col + 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('background-color', warna).attr("rel", "X");
+                return true;
+            }
+
+            if (row - 1 >= 0 && col - 1 >= 0 && solveBacktracking(matrix, soal, row - 1, col - 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('background-color', warna).attr("rel", "X");
+                return true;
+            }
+
+            if (row + 1 < N && col - 1 >= 0 && solveBacktracking(matrix, soal, row + 1, col - 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('background-color', warna).attr("rel", "X");
+                return true;
+            }
+
+            if (row + 1 < N && col + 1 < N && solveBacktracking(matrix, soal, row + 1, col + 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('background-color', warna).attr("rel", "X");
+                return true;
+            }
+
+            solusi[row][col] = 0;
+            path--;
+            return false;
+
+        }
+
+        function solveBruteForce(matrix, soal, row, col, index, N) {
+            if (solusi2[row][col] !== 0 || soal.charAt(index) !== matrix[row][col]) {
+                return false;
+            }
+
+            if (index === soal.length - 1) {
+                matrix[row][col] = path2++;
+                $(`table#board tr#r${row} td#c${col + 1}`).css('text-decoration', 'line-through').attr("rel", "X");
+                return true;
+            }
+
+            solusi2[row][col] = path2++;
+
+            if (row + 1 < N && solveBruteForce(matrix, soal, row + 1, col, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('text-decoration', 'line-through').attr("rel", "X");
+                return true;
+            }
+
+            if (row - 1 >= 0 && solveBruteForce(matrix, soal, row - 1, col, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('text-decoration', 'line-through').attr("rel", "X");
+                return true;
+            }
+
+            if (col + 1 < N && solveBruteForce(matrix, soal, row, col + 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('text-decoration', 'line-through').attr("rel", "X");
+                return true;
+            }
+
+            if (col - 1 >= 0 && solveBruteForce(matrix, soal, row, col - 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('text-decoration', 'line-through').attr("rel", "X");
+                return true;
+            }
+
+            if (row - 1 >= 0 && col + 1 < N && solveBruteForce(matrix, soal, row - 1, col + 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('text-decoration', 'line-through').attr("rel", "X");
+                return true;
+            }
+
+            if (row - 1 >= 0 && col - 1 >= 0 && solveBruteForce(matrix, soal, row - 1, col - 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('text-decoration', 'line-through').attr("rel", "X");
+                return true;
+            }
+
+            if (row + 1 < N && col - 1 >= 0 && solveBruteForce(matrix, soal, row + 1, col - 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('text-decoration', 'line-through').attr("rel", "X");
+                return true;
+            }
+
+            if (row + 1 < N && col + 1 < N && solveBruteForce(matrix, soal, row + 1, col + 1, index + 1, N)) {
+                $(`table#board tr#r${row} td#c${col + 1}`).css('text-decoration', 'line-through').attr("rel", "X");
+                return true;
+            }
+
+            solusi2[row][col] = 0;
+            path2--;
+            return false;
+        }
+
+        function print() {
+            var result = '';
+            $("#board td[rel='E']").each(function(i) {
+                result += $(this).html();
+            });
+            return result;
+        }
+
+        function print2() {
+            for (let i = 0; i < solusi.length; i++) {
+                $("table#hasilbt tbody").append(`<tr id=h${i + 1}></tr>`);
+                for (let j = 0; j < solusi.length; j++) {
+                    $("table#hasilbt tr#h" + i).append(`<td>${solusi[i][j]}</td>`);
+                }
+
+            }
+        }
+
+        function print3() {
+            for (let i = 0; i < solusi2.length; i++) {
+                $("table#hasilbf tbody").append(`<tr id=h${i + 1}></tr>`);
+                for (let j = 0; j < solusi2.length; j++) {
+                    $("table#hasilbf tr#h" + i).append(`<td>${solusi2[i][j]}</td>`);
+                }
+            }
+        }
+
+        $(document).ready(function() {
+            var soal = "JUPITER";
+            drawWordMap();
+            // drawSoal(soal);
+            wordMatrix(matrix.length);
+            wordMatrixBrute(matrix.length);
+
+            $('#soal tr').click(function() {
+                $(this).find('td input:radio').prop('checked', true);
+            });
+            // ketika tombol solve diklik
+            $('#solve').click(function() {
+                var nama = $('input[type=radio]');
+                var solusi = searchWord(matrix, soal);
+                var solusi2 = searchWordBrute(matrix, soal);
+                console.log(solusi2);
+                if (solusi) {
+                    print();
+                    print2();
+                    print3();
+                } else {
+                    alert("Solusi tidak ditemukan")
+
+                }
+
+
+            });
+
+        });
+    </script>
+</body>
+
+</html>
